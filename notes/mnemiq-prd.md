@@ -1,0 +1,502 @@
+# MnemIQ — Product Requirements Document
+
+**Version:** 1.0
+**Last Updated:** August 2026
+**Status:** In Planning (Sprint 0)
+**Author:** Narciso Lobo
+
+---
+
+## 1. Overview
+
+MnemIQ is a gamified, spaced-repetition flashcard web app targeting students. It positions itself as a modern, welcoming alternative to Anki — combining the proven science of spaced repetition with a polished community experience and medium gamification to keep students engaged and coming back daily.
+
+The core mental model is **"GitHub for flashcards"** — users can create their own card decks, share them publicly, fork and remix others' decks, rate and comment on community content, and build a study profile over time.
+
+---
+
+## 2. Problem Statement
+
+Existing flashcard tools fall into two camps:
+
+- **Anki** — powerful spaced repetition but cluttered, utilitarian, and unfinished-feeling. High learning curve. Unappealing to modern students.
+- **Quizlet** — polished and approachable but weak on spaced repetition and increasingly paywalled.
+
+MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a GitHub-style community layer.**
+
+---
+
+## 3. Target Audience
+
+**Primary:** Students (high school, college, and self-directed learners)
+
+**Characteristics:**
+
+- Studying for exams, certifications, or language learning
+- Familiar with modern web apps and expect polished UX
+- Motivated by social proof, progress visibility, and light competition
+- May already use Anki or Quizlet but find them lacking in some way
+
+---
+
+## 4. Goals & Success Metrics
+
+| Goal                      | Metric                                               |
+| ------------------------- | ---------------------------------------------------- |
+| Drive daily study habits  | Daily active users, average session frequency        |
+| Retain users long-term    | 30-day retention rate, average streak length         |
+| Build a healthy community | Number of public decks, forks, ratings, and comments |
+| Keep content safe         | % of flagged decks caught by AI moderation           |
+
+---
+
+## 5. Tech Stack
+
+| Layer            | Choice                            |
+| ---------------- | --------------------------------- |
+| Frontend         | Next.js (App Router)              |
+| Database         | Supabase (Postgres)               |
+| Auth             | Supabase Auth + Google SSO        |
+| Styling          | Tailwind + DaisyUI                |
+| State Management | Zustand                           |
+| AI               | Anthropic API (Claude)            |
+| Email            | Resend + React Email              |
+| Scheduling       | Supabase Edge Functions + pg_cron |
+| Deployment       | Vercel                            |
+
+---
+
+## 6. Core Features
+
+### 6.1 Authentication
+
+- Google SSO via Supabase Auth
+- Protected routes for all authenticated content
+- Auth state managed via Zustand
+
+### 6.2 Card Decks & Cards
+
+- Users can create, edit, and delete card decks
+- Each card has a front and back
+- Cards can be reordered via drag and drop
+- Card decks can be public or private
+- Public card decks are subject to AI safety moderation
+
+### 6.3 Spaced Repetition (SM-2)
+
+- Study sessions powered by the SM-2 algorithm
+- Rating options per card: Again / Hard / Good / Easy
+- SM-2 calculates next review interval after each rating
+- Card review history stored in `card_reviews` table
+- "Cards due today" count surfaced on dashboard
+- "Quick study" mode — study all due cards across all decks
+
+### 6.4 Study Sessions
+
+- Session start screen with due card count
+- Flashcard flip animation (front → back)
+- Keyboard shortcuts (spacebar to flip, 1–4 to rate)
+- Session progress indicator
+- Session summary screen on completion
+- Session pause and resume
+
+### 6.5 Community Features
+
+- Users can publish card decks publicly
+- Community browse page with search, filter by tag, and sort options
+- Full-text search on set title and description (Postgres `tsvector`)
+- Set detail page with deck preview, author info, and social features
+- **Ratings:** Community star rating (1–5) per deck
+- **Comments:** Add, edit, delete comments on public decks
+- **Forks:** Fork any public deck into your own library, with attribution
+- **Tags:** User-defined tags with debounced autocomplete, fuzzy matching via `pg_trgm`, and normalization on save
+
+### 6.6 AI Moderation
+
+- Triggered automatically when a card deck is published
+- Claude screens deck title, description, and card content for content safety
+- Decks that fail the safety threshold are auto-unpublished
+- Dual rating system displayed on deck detail page:
+  - **AI safety rating** — content safety score
+  - **Community rating** — usefulness score from user ratings
+- Authors notified by email when their deck is flagged
+- AI accuracy moderation is explicitly out of scope — community ratings handle quality
+
+### 6.7 AI Card Generation _(Stretch Goal — Sprint 9)_
+
+- "Generate cards with AI" button in card deck editor
+- Input modes:
+  - Type a topic or subject
+  - Paste notes or text
+  - Upload a PDF or image
+- Claude generates structured card objects (front/back JSON)
+- User reviews and edits generated cards before saving
+- Streaming response for perceived performance
+- XP awarded for using AI generation
+
+### 6.8 Gamification
+
+- **XP system** — earned through study and community actions
+- **Levels** — calculated from total XP (level = floor(xp / 500))
+- **Badges** — auto-awarded when criteria are met
+- Level badge displayed on profile and next to username in comments
+- Level up and badge earned toast notifications
+
+#### XP-Earning Actions
+
+| Action                              | Notes                  |
+| ----------------------------------- | ---------------------- |
+| Complete a study session            | Core loop reward       |
+| Streak milestones (7, 30, 100 days) | Retention reward       |
+| Publish a card deck                 | Community contribution |
+| Receive a 5-star rating             | Quality reward         |
+| Fork another user's deck            | Community engagement   |
+| Have your deck forked               | Influence reward       |
+| First card deck created             | Onboarding reward      |
+| First study session completed       | Onboarding reward      |
+
+#### Initial Badge List
+
+| Badge           | Criteria                          |
+| --------------- | --------------------------------- |
+| 🌱 First Steps  | Complete your first study session |
+| 🔥 On Fire      | Reach a 7-day streak              |
+| 🏆 Veteran      | Reach a 30-day streak             |
+| 📚 Author       | Publish your first card deck      |
+| ⭐ Star Teacher | Receive a 5-star rating           |
+| 🔀 Forked       | Have your deck forked             |
+| 🧬 Scholar      | Review 1,000 cards total          |
+| 💡 Curious      | Study 10 different card decks     |
+
+### 6.9 Streaks
+
+- Daily streak tracked and incremented on study session completion
+- Streak reset at midnight via pg_cron if user hasn't studied that day
+- Current streak and longest streak displayed on dashboard and profile
+- Streak flame icon with milestone animations
+
+### 6.10 Notification System
+
+- **Email types:**
+  - 📬 Daily reminder — cards due today with link to quick study mode
+  - 🔥 Streak at risk — sent in the evening if user hasn't studied
+  - 🏆 Badge earned
+  - ⭐ Deck rated (5-star)
+  - 🔀 Deck forked
+  - 🚨 Deck flagged for content policy violation
+- Per-type notification preferences in user settings
+- Unsubscribe link in every email
+- Scheduled via pg_cron + Supabase Edge Functions
+- In-app streak-at-risk indicator on dashboard
+
+### 6.11 Progress Tracking
+
+- Per card deck: cards mastered vs. in progress vs. unseen, average ease factor, next review dates, study history graph
+- Overall profile: total cards reviewed, total sessions, average daily cards
+- Progress graphs built with Recharts
+
+### 6.12 Personalization
+
+- DaisyUI theme picker — students choose their preferred theme
+- Theme preference persisted to Supabase and managed via Zustand
+
+---
+
+## 7. Database Schema (Core Tables)
+
+| Table              | Purpose                                                 |
+| ------------------ | ------------------------------------------------------- |
+| `users`            | Auth, profile, XP, level, streak                        |
+| `card_decks`       | Deck metadata, public/private, AI and community ratings |
+| `cards`            | Individual flashcards (front/back)                      |
+| `card_reviews`     | SM-2 review history per card per user                   |
+| `study_sessions`   | Completed study session records                         |
+| `badges`           | Badge definitions                                       |
+| `user_badges`      | Badges earned by users                                  |
+| `xp_events`        | Audit trail of XP earned                                |
+| `deck_ratings`     | Community star ratings on public decks                  |
+| `comments`         | Comments on public decks                                |
+| `forks`            | Fork relationships between decks                        |
+| `tags`             | Tag definitions                                         |
+| `card_set_tags`    | Join table linking tags to decks                        |
+| `notification_log` | Email send history                                      |
+
+---
+
+## 8. Monetization
+
+### Philosophy
+
+MnemIQ launches completely free. All core features — spaced repetition, community card decks, gamification, and notifications — are free forever. No paywalled study features, no artificial limits on the core loop. Trust is built first, monetization follows.
+
+The one paid feature is **AI card generation** — a new capability introduced after launch, behind a credit system. Users are never charged for something that was previously free.
+
+### AI Card Generation Credits
+
+**Free credits on signup:** 5 credits (enough to meaningfully try the feature)
+
+**Credit bundles (à la carte):**
+| Bundle | Credits | Price | Per Generation |
+|---|---|---|---|
+| Starter | 10 | $1.99 | $0.20 |
+| Standard | 50 | $7.99 | $0.16 |
+| Plus | 150 | $19.99 | $0.13 |
+
+**Rules:**
+
+- 1 credit = 1 AI generation request, regardless of card count produced
+- Credits never expire
+- Bulk pricing incentivizes larger purchases
+- Free credit amount is a growth lever — adjustable post-launch
+
+### Competitive Positioning
+
+- Quizlet Plus: $35.99/year (paywalled core features, poor reputation for paywall creep)
+- Anki: Free desktop, $24.99 iOS one-time
+- MnemIQ: Free core, pay only for AI generation
+
+### Future Monetization Considerations
+
+- Creator monetization (authors charge for premium decks, MnemIQ takes a cut) — strong long-term play given "GitHub for flashcards" positioning
+- Institutional / B2B (schools, tutoring centers) — longer sales cycle, higher revenue per customer
+- Cosmetic purchases (theme packs, badge packs) — low ceiling but zero subscription fatigue
+
+---
+
+## 9. Out of Scope (MVP)
+
+- Leaderboards (dropped in favor of badges/levels only)
+- Manual content moderation (replaced by AI moderation)
+- AI accuracy moderation (community ratings handle quality)
+- Mobile app (web-first, mobile-responsive)
+- Payments or premium tier (introduced post-launch with AI generation)
+- Multiplayer or real-time study modes
+
+---
+
+## 10. Sprint Plan
+
+| Cycle | Focus                        | Start  | End    |
+| ----- | ---------------------------- | ------ | ------ |
+| 0     | Wireframes & Planning        | Aug 17 | Aug 30 |
+| 1     | Foundation Part 1            | Aug 31 | Sep 13 |
+| 2     | Foundation Part 2            | Sep 14 | Sep 27 |
+| 3     | Core Study Experience Part 1 | Sep 28 | Oct 11 |
+| 4     | Core Study Experience Part 2 | Oct 12 | Oct 25 |
+| 5     | Community Features Part 1    | Oct 26 | Nov 8  |
+| 6     | Community Features Part 2    | Nov 9  | Nov 22 |
+| 7     | Gamification                 | Nov 23 | Dec 6  |
+| 8     | Notification System          | Dec 7  | Dec 20 |
+| 9     | AI Card Generation + Polish  | Dec 21 | Jan 3  |
+
+**MVP Target: January 3, 2027**
+
+---
+
+## 10. Pages & Content
+
+### Public (Unauthenticated)
+
+**Landing Page**
+
+- Hero section (value proposition, CTA to sign up)
+- Feature highlights (spaced repetition, community, gamification)
+- Sample/preview of community card decks
+- Testimonials or social proof (post-launch)
+- Header with login button
+- Footer
+
+**Login Page**
+
+- Google SSO button
+- App branding
+- Brief value prop
+
+---
+
+### Core App (Authenticated)
+
+**Dashboard**
+
+- Streak indicator (🔥 current streak)
+- XP progress bar toward next level
+- Cards due today count + quick study CTA
+- Streak at risk indicator (conditional)
+- Recent card decks
+- Recent community activity (decks you've starred/forked)
+
+**Study Session**
+
+- Flashcard (front, flip to reveal back)
+- Session progress indicator (e.g. 12/30)
+- Rating buttons (Again / Hard / Good / Easy)
+- Keyboard shortcut hints
+- Pause button
+
+**Session Summary**
+
+- Cards reviewed count
+- Accuracy breakdown
+- XP earned
+- Badge earned (if applicable)
+- CTA to study another set or return to dashboard
+
+---
+
+### Card Decks
+
+**My Card Decks (list)**
+
+- Grid/list of user's card decks
+- Create new deck button
+- Per-deck: title, card count, due cards, public/private status
+
+**Card Deck Editor**
+
+- Deck title and description fields
+- Public/private toggle
+- Tag input with debounced autocomplete
+- Card list (front/back per card)
+- Add card button
+- Drag to reorder cards
+- Generate cards with AI button (Sprint 9)
+- Save/publish button
+
+**Card Deck Detail (own deck)**
+
+- Deck metadata (title, description, tags, card count)
+- Study now button
+- Edit button
+- Cards list preview
+- Stats (times studied, average ease)
+
+---
+
+### Community
+
+**Browse Page**
+
+- Search bar
+- Filter by tag
+- Sort controls (newest, highest rated, most studied)
+- Grid of public card decks
+- Per-deck card: title, author, rating, card count, fork count, comment count, tags
+
+**Deck Detail Page (public)**
+
+- Deck metadata (title, description, author, tags, card count)
+- AI safety badge
+- Community star rating + rate this deck
+- Study this deck button
+- Fork this deck button
+- Cards preview
+- Comments section (add, edit, delete)
+- Fork attribution (if forked)
+- Author profile link
+
+---
+
+### User
+
+**Profile Page**
+
+- Avatar + display name
+- Member since date
+- Current level + level badge
+- XP progress bar
+- Current streak + longest streak
+- Badges grid (earned + locked)
+- Total cards reviewed, total sessions, average daily cards
+- Published card decks
+
+**Settings Page**
+
+- Theme picker (DaisyUI themes)
+- Notification preferences (per-type toggles)
+- Display name edit
+- Unsubscribe options
+
+---
+
+### Misc
+
+**Onboarding Flow** _(first-time users only)_
+
+- Step 1: Welcome screen
+- Step 2: Create your first card deck (or browse community)
+- Step 3: Study your first session
+- Step 4: Dashboard intro
+
+**404 / Error Page**
+
+- Friendly message
+- CTA back to dashboard
+
+---
+
+## 11. Content Strategy & Logged-Out Experience
+
+### Content Tiers
+
+| Tier                | Who Creates It    | Who Can Study It           | Notes                        |
+| ------------------- | ----------------- | -------------------------- | ---------------------------- |
+| **Free decks**      | MnemIQ (official) | Anyone, no signup required | Always free, curated quality |
+| **Community decks** | Registered users  | Registered users only      | Subject to AI moderation     |
+
+### Free Decks
+
+- Curated and produced by MnemIQ on a monthly release cadence
+- Always free, no account required to study
+- Designed to attract quiz-curious users (state capitals, world flags, US presidents, etc.)
+- Each new pack is a re-engagement opportunity — monthly email to full user base
+- MnemIQ free decks serve as the quality benchmark for the platform
+
+### Monthly Pack Ideas (Launch Backlog)
+
+- US State Capitals
+- World Flags
+- US Presidents
+- Countries & Capitals
+- Periodic Table Elements
+- Famous Paintings & Artists
+- World Landmarks
+- Human Anatomy Basics
+
+### Logged-Out User Journey
+
+1. **Entry** — Google search, shared link, or landing page
+2. **Community browse** — open to all, no signup required
+3. **Free deck detail page** — full deck visible, study button accessible without signup
+4. **Study session** — full SM-2 experience, no restrictions for free decks
+5. **Session summary** — results shown, then CTA:
+   > _"Not bad. Want to remember this tomorrow?"_
+   > Sign up free to save your progress and get reminded when it's time to review.
+6. **Related decks row** — curated decks filtered by same tags, keeps user in funnel
+7. **Community decks** — visible in browse, but studying requires signup
+
+### Logged-Out Permissions
+
+| Action                    | Logged Out      | Logged In |
+| ------------------------- | --------------- | --------- |
+| View landing page         | ✅              | ✅        |
+| Browse community          | ✅              | ✅        |
+| View deck detail pages    | ✅              | ✅        |
+| Study free (MnemIQ) decks | ✅              | ✅        |
+| Study community decks     | ❌ (signup CTA) | ✅        |
+| Create card decks         | ❌              | ✅        |
+| Rate / comment / fork     | ❌              | ✅        |
+| Save progress             | ❌              | ✅        |
+| Receive notifications     | ❌              | ✅        |
+
+---
+
+## 12. Design Principles
+
+- **Welcoming and modern** — intelligence signaled through design, not complexity
+- **Anti-Anki** — no clutter, no utilitarian aesthetic, no unfinished feeling
+- **Student-first** — approachable, encouraging, rewarding to use
+- **Mobile-responsive** — study happens everywhere
+
+---
+
+_This document reflects decisions made during Sprint 0 planning. It will be updated as the product evolves._
