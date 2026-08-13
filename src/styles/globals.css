@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+@plugin "daisyui";
+@import './themes/mnemiq-light.css';
+@import './themes/mnemiq-dark.css';
+
+@theme inline {
+  --breakpoint-8xl: 1536px;
+  --container-8xl: 1536px;
+  --font-display-1: var(--font-anton);
+  --font-display-2: var(--font-archivo-black);
+  --font-sans-1: var(--font-epilogue);
+  --font-sans-2: var(--font-sora);
+}
