@@ -1,17 +1,19 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 function Logo() {
   return (
     <Link
       href="/"
       aria-label="Neemik logo"
-      className="font-display text-xl inline-flex items-center gap-1 focus-ring ring-offset-base-200">
+      className="font-display inline-flex items-center gap-1 text-xl"
+    >
       <span aria-hidden="true" className="inline-block">
         mnem
       </span>
       <span
         aria-hidden="true"
-        className="inline-block py-0.5 px-2 bg-primary border-3 shadow-md dark:text-primary-content">
+        className="bg-primary dark:text-primary-content inline-block border-3 px-2 py-0.5 shadow-md"
+      >
         IQ
       </span>
     </Link>

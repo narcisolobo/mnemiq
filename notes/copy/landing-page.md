@@ -26,7 +26,7 @@ Sign up for free
 SM-2 spaced repetition. It's the same method memory champions use, and yes, it's as powerful as it sounds. We just made it not look like it was built in 2004.
 
 **Steal like an academic**
-Browse card decks made by real students, fork the ones you like, and make them your own. It's not cheating. It's community.
+Browse card decks made by real students, remix the ones you like, and make them your own. It's not cheating. It's community.
 
 **Your brain on dopamine**
 Badges. Levels. Streaks. We're not above bribery. Show up every day and MnemIQ will make sure you feel every bit of it.
@@ -76,7 +76,7 @@ _(Section features UI screenshot mockups of XP bar, level badge, streak flame, a
 Someone already made the flashcards. You're welcome.
 
 **Subheadline**
-Why start from scratch? Browse community decks, fork your favorites, and add your own twist.
+Why start from scratch? Browse community decks, remix your favorites, and add your own twist.
 
 **Grid**
 9 deck cards displayed. Each card shows:
@@ -100,7 +100,7 @@ Browse all decks →
 | -------------- | -------------------------------- | --------------------------- |
 | Interface      | Looks like 2008                  | Actually enjoyable          |
 | Learning curve | Steep. Bring snacks.             | Sign up and go              |
-| Community      | Scattered forums, 2011-era decks | Browse, fork, rate, remix   |
+| Community      | Scattered forums, 2011-era decks | Browse, remix, rate, share  |
 | Gamification   | None. Suffer in silence.         | XP, levels, badges, streaks |
 | Price          | Free (feels like it too)         | Free. No gotchas.           |
 

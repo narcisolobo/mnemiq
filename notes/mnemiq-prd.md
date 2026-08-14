@@ -41,12 +41,12 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 
 ## 4. Goals & Success Metrics
 
-| Goal                      | Metric                                               |
-| ------------------------- | ---------------------------------------------------- |
-| Drive daily study habits  | Daily active users, average session frequency        |
-| Retain users long-term    | 30-day retention rate, average streak length         |
-| Build a healthy community | Number of public decks, forks, ratings, and comments |
-| Keep content safe         | % of flagged decks caught by AI moderation           |
+| Goal                      | Metric                                                 |
+| ------------------------- | ------------------------------------------------------ |
+| Drive daily study habits  | Daily active users, average session frequency          |
+| Retain users long-term    | 30-day retention rate, average streak length           |
+| Build a healthy community | Number of public decks, remixes, ratings, and comments |
+| Keep content safe         | % of flagged decks caught by AI moderation             |
 
 ---
 
@@ -123,7 +123,7 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 - Set detail page with deck preview, author info, and social features
 - **Ratings:** Community star rating (1–5) per deck
 - **Comments:** Add, edit, delete comments on public decks
-- **Forks:** Fork any public deck into your own library, with attribution
+- **Remix:** Remix any public deck into your own library, with attribution
 - **Tags:** User-defined tags with debounced autocomplete, fuzzy matching via `pg_trgm`, and normalization on save
 
 ### 6.6 Content Moderation
@@ -172,8 +172,8 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 | Streak milestones (7, 30, 100 days) | Retention reward       |
 | Publish a card deck                 | Community contribution |
 | Receive a 5-star rating             | Quality reward         |
-| Fork another user's deck            | Community engagement   |
-| Have your deck forked               | Influence reward       |
+| Remix another user's deck           | Community engagement   |
+| Have your deck remixed              | Influence reward       |
 | First card deck created             | Onboarding reward      |
 | First study session completed       | Onboarding reward      |
 
@@ -186,7 +186,7 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 | 🏆 Veteran      | Reach a 30-day streak             |
 | 📚 Author       | Publish your first card deck      |
 | ⭐ Star Teacher | Receive a 5-star rating           |
-| 🔀 Forked       | Have your deck forked             |
+| 🔀 Remixed      | Have your deck remixed            |
 | 🧬 Scholar      | Review 1,000 cards total          |
 | 💡 Curious      | Study 10 different card decks     |
 
@@ -204,7 +204,7 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
   - 🔥 Streak at risk — sent in the evening if user hasn't studied
   - 🏆 Badge earned
   - ⭐ Deck rated (5-star)
-  - 🔀 Deck forked
+  - 🔀 Deck remixed
   - 🚨 Deck flagged for content policy violation
 - Per-type notification preferences in user settings
 - Unsubscribe link in every email
@@ -226,23 +226,23 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 
 ## 7. Database Schema (Core Tables)
 
-| Table              | Purpose                                                       |
-| ------------------ | ------------------------------------------------------------- |
-| `users`            | Auth, profile, XP, level, streak                              |
-| `card_decks`       | Deck metadata, public/private, AI and community ratings       |
-| `cards`            | Individual flashcards (front/back text + optional image URLs) |
-| `card_reviews`     | SM-2 review history per card per user                         |
-| `study_sessions`   | Completed study session records                               |
-| `badges`           | Badge definitions                                             |
-| `user_badges`      | Badges earned by users                                        |
-| `xp_events`        | Audit trail of XP earned                                      |
-| `deck_ratings`     | Community star ratings on public decks                        |
-| `comments`         | Comments on public decks                                      |
-| `forks`            | Fork relationships between decks                              |
-| `tags`             | Tag definitions                                               |
-| `card_deck_tags`   | Join table linking tags to decks                              |
-| Supabase Storage   | `card-images` bucket for uploaded card images                 |
-| `notification_log` | Email send history                                            |
+| Table                           | Purpose                                                       |
+| ------------------------------- | ------------------------------------------------------------- |
+| `users`                         | Auth, profile, XP, level, streak                              |
+| `card_decks`                    | Deck metadata, public/private, AI and community ratings       |
+| `cards`                         | Individual flashcards (front/back text + optional image URLs) |
+| `card_reviews`                  | SM-2 review history per card per user                         |
+| `study_sessions`                | Completed study session records                               |
+| `badges`                        | Badge definitions                                             |
+| `user_badges`                   | Badges earned by users                                        |
+| `xp_events`                     | Audit trail of XP earned                                      |
+| `deck_ratings`                  | Community star ratings on public decks                        |
+| `comments`                      | Comments on public decks                                      |
+| `remixes` (still `forks` in DB) | Remix relationships between decks                             |
+| `tags`                          | Tag definitions                                               |
+| `card_deck_tags`                | Join table linking tags to decks                              |
+| Supabase Storage                | `card-images` bucket for uploaded card images                 |
+| `notification_log`              | Email send history                                            |
 
 ---
 
@@ -259,11 +259,12 @@ The one paid feature is **AI card generation** — a new capability introduced a
 **Free credits on signup:** 5 credits (enough to meaningfully try the feature)
 
 **Credit bundles (à la carte):**
-| Bundle | Credits | Price | Per Generation |
-|---|---|---|---|
-| Starter | 10 | $1.99 | $0.20 |
-| Standard | 50 | $7.99 | $0.16 |
-| Plus | 150 | $19.99 | $0.13 |
+
+| Bundle   | Credits | Price  | Per Generation |
+| -------- | ------- | ------ | -------------- |
+| Starter  | 10      | $1.99  | $0.20          |
+| Standard | 50      | $7.99  | $0.16          |
+| Plus     | 150     | $19.99 | $0.13          |
 
 **Rules:**
 
@@ -355,7 +356,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 - Cards due today count + quick study CTA
 - Streak at risk indicator (conditional)
 - Recent card decks
-- Recent community activity (decks you've starred/forked)
+- Recent community activity (decks you've starred/remixed)
 
 **Study Session**
 
@@ -413,7 +414,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 - Filter by tag
 - Sort controls (newest, highest rated, most studied)
 - Grid of public card decks
-- Per-deck card: title, author, rating, card count, fork count, comment count, tags
+- Per-deck card: title, author, rating, card count, remix count, comment count, tags
 
 **Deck Detail Page (public)**
 
@@ -421,10 +422,10 @@ The one paid feature is **AI card generation** — a new capability introduced a
 - AI safety badge
 - Community star rating + rate this deck
 - Study this deck button
-- Fork this deck button
+- Remix this deck button
 - Cards preview
 - Comments section (add, edit, delete)
-- Fork attribution (if forked)
+- Remix attribution (if remixed)
 - Author profile link
 
 ---
@@ -517,7 +518,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 | Study free (MnemIQ) decks | ✅              | ✅        |
 | Study community decks     | ❌ (signup CTA) | ✅        |
 | Create card decks         | ❌              | ✅        |
-| Rate / comment / fork     | ❌              | ✅        |
+| Rate / comment / remix    | ❌              | ✅        |
 | Save progress             | ❌              | ✅        |
 | Receive notifications     | ❌              | ✅        |
 
@@ -549,8 +550,8 @@ A protected `/admin` route in MnemIQ itself is a future option if metrics ever n
 
 - Total public decks published
 - New decks published per month
-- Total forks, ratings, and comments
-- Monthly active community contributors (users who publish, fork, or rate)
+- Total remixes, ratings, and comments
+- Monthly active community contributors (users who publish, remix, or rate)
 
 **Core Loop**
 
@@ -585,7 +586,7 @@ A protected `/admin` route in MnemIQ itself is a future option if metrics ever n
 
 ### What Buyers Look For
 
-MnemIQ's most defensible asset is not the app itself — it's the community content layer. A buyer can build a flashcard app; they cannot easily replicate a thriving library of community-created, rated, and forked decks. This is the moat worth building toward.
+MnemIQ's most defensible asset is not the app itself — it's the community content layer. A buyer can build a flashcard app; they cannot easily replicate a thriving library of community-created, rated, and remixed decks. This is the moat worth building toward.
 
 ### Target Buyer Profiles
 
@@ -599,18 +600,18 @@ MnemIQ's most defensible asset is not the app itself — it's the community cont
 
 **The number to watch isn't just DAU — it's community health:**
 
-| Metric                                | Target for Acquisition Interest      |
-| ------------------------------------- | ------------------------------------ |
-| DAU                                   | 5,000–20,000                         |
-| 30-day retention                      | >30%                                 |
-| Monthly active community contributors | 1,000+ (publishing, forking, rating) |
-| Community deck library size           | Large, diverse, high-quality         |
+| Metric                                | Target for Acquisition Interest       |
+| ------------------------------------- | ------------------------------------- |
+| DAU                                   | 5,000–20,000                          |
+| 30-day retention                      | >30%                                  |
+| Monthly active community contributors | 1,000+ (publishing, remixing, rating) |
+| Community deck library size           | Large, diverse, high-quality          |
 
 10,000 MAU with 1,000 active community contributors is a more compelling acquisition story than 50,000 MAU of passive studiers.
 
 ### What MnemIQ Is Building Toward
 
-- A content moat via community decks, forks, and ratings — hard to replicate
+- A content moat via community decks, remixes, and ratings — hard to replicate
 - Strong retention signals via streaks, gamification, and spaced repetition
 - Clean, modern stack that an acquiring engineering team won't cringe at
 - Transparent, trust-first monetization that doesn't alienate the user base
@@ -674,7 +675,7 @@ Public deck detail pages are indexable by Google. A student searching "US state 
 - **Google Search Console** — configured at launch to monitor search performance and indexing
 - **Robots.txt** — configured to allow indexing of public pages, block admin and auth routes
 - **Structured data** — JSON-LD schema markup on deck detail pages (helps Google understand content)
-- **Canonical URLs** — prevent duplicate content issues (e.g. forked decks)
+- **Canonical URLs** — prevent duplicate content issues (e.g. remixed decks)
 - **Page speed** — Next.js App Router + Vercel gives strong Core Web Vitals out of the box; audit before launch
 
 ### Competitive Search Ads (Future)
