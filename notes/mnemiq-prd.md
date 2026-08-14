@@ -52,17 +52,20 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 
 ## 5. Tech Stack
 
-| Layer            | Choice                            |
-| ---------------- | --------------------------------- |
-| Frontend         | Next.js (App Router)              |
-| Database         | Supabase (Postgres)               |
-| Auth             | Supabase Auth + Google SSO        |
-| Styling          | Tailwind + DaisyUI                |
-| State Management | Zustand                           |
-| AI               | Anthropic API (Claude)            |
-| Email            | Resend + React Email              |
-| Scheduling       | Supabase Edge Functions + pg_cron |
-| Deployment       | Vercel                            |
+| Layer            | Choice                                                        |
+| ---------------- | ------------------------------------------------------------- |
+| Frontend         | Next.js (App Router)                                          |
+| Database         | Supabase (Postgres)                                           |
+| Auth             | Supabase Auth + Google SSO                                    |
+| Styling          | Tailwind + DaisyUI                                            |
+| State Management | Zustand                                                       |
+| AI               | Anthropic API (Claude)                                        |
+| Email            | Resend + React Email                                          |
+| Scheduling       | Supabase Edge Functions + pg_cron                             |
+| Deployment       | Vercel                                                        |
+| Image Processing | browser-image-compression (resize, compress, WebP conversion) |
+| Image Moderation | NSFWJS + TensorFlow.js (client-side, pre-upload)              |
+| Text Moderation  | Obscenity (server-side, on publish)                           |
 
 ---
 
@@ -77,10 +80,22 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 ### 6.2 Card Decks & Cards
 
 - Users can create, edit, and delete card decks
-- Each card has a front and back
+- Each card has a front and back — either or both sides can be text, image, or text + image
+- Image-only cards are fully supported
 - Cards can be reordered via drag and drop
 - Card decks can be public or private
-- Public card decks are subject to AI safety moderation
+- Public card decks are subject to content moderation (text via Obscenity, images via NSFWJS)
+
+#### Image Card Support
+
+- Accepted formats: JPG, PNG, WebP
+- Max upload size: 5MB (pre-compression)
+- Client-side processing pipeline before upload:
+  - NSFWJS screens image — rejects upload if flagged
+  - Resized to max 1200px on longest side
+  - Compressed and converted to WebP
+- Images stored in Supabase Storage (`card-images` bucket)
+- `cards` table stores `front_image_url` and `back_image_url` (both nullable)
 
 ### 6.3 Spaced Repetition (SM-2)
 
@@ -111,16 +126,23 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 - **Forks:** Fork any public deck into your own library, with attribution
 - **Tags:** User-defined tags with debounced autocomplete, fuzzy matching via `pg_trgm`, and normalization on save
 
-### 6.6 AI Moderation
+### 6.6 Content Moderation
 
-- Triggered automatically when a card deck is published
-- Claude screens deck title, description, and card content for content safety
-- Decks that fail the safety threshold are auto-unpublished
-- Dual rating system displayed on deck detail page:
-  - **AI safety rating** — content safety score
+#### Launch Moderation Stack (zero API cost)
+
+- **Text moderation:** Obscenity npm package screens deck titles, descriptions, and card text on publish. Decks containing flagged content are held for review.
+- **Image moderation:** NSFWJS (TensorFlow.js) screens images client-side before upload. Flagged images are rejected before they reach Supabase Storage.
+- **Community reporting:** "Report this deck" button on all public deck detail pages. Flagged decks enter a manual review queue.
+- **ToS + strike system:** Users agree to content policy at signup. Violations result in warnings, deck removal, or account suspension.
+
+#### Post-Launch Moderation (once revenue supports it)
+
+- Claude (Anthropic API) introduced for deeper content safety screening
+- Dual rating system on deck detail page:
+  - **AI safety rating** — content safety score from Claude
   - **Community rating** — usefulness score from user ratings
 - Authors notified by email when their deck is flagged
-- AI accuracy moderation is explicitly out of scope — community ratings handle quality
+- AI accuracy moderation remains out of scope — community ratings handle quality
 
 ### 6.7 AI Card Generation _(Stretch Goal — Sprint 9)_
 
@@ -204,22 +226,23 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 
 ## 7. Database Schema (Core Tables)
 
-| Table              | Purpose                                                 |
-| ------------------ | ------------------------------------------------------- |
-| `users`            | Auth, profile, XP, level, streak                        |
-| `card_decks`       | Deck metadata, public/private, AI and community ratings |
-| `cards`            | Individual flashcards (front/back)                      |
-| `card_reviews`     | SM-2 review history per card per user                   |
-| `study_sessions`   | Completed study session records                         |
-| `badges`           | Badge definitions                                       |
-| `user_badges`      | Badges earned by users                                  |
-| `xp_events`        | Audit trail of XP earned                                |
-| `deck_ratings`     | Community star ratings on public decks                  |
-| `comments`         | Comments on public decks                                |
-| `forks`            | Fork relationships between decks                        |
-| `tags`             | Tag definitions                                         |
-| `card_set_tags`    | Join table linking tags to decks                        |
-| `notification_log` | Email send history                                      |
+| Table              | Purpose                                                       |
+| ------------------ | ------------------------------------------------------------- |
+| `users`            | Auth, profile, XP, level, streak                              |
+| `card_decks`       | Deck metadata, public/private, AI and community ratings       |
+| `cards`            | Individual flashcards (front/back text + optional image URLs) |
+| `card_reviews`     | SM-2 review history per card per user                         |
+| `study_sessions`   | Completed study session records                               |
+| `badges`           | Badge definitions                                             |
+| `user_badges`      | Badges earned by users                                        |
+| `xp_events`        | Audit trail of XP earned                                      |
+| `deck_ratings`     | Community star ratings on public decks                        |
+| `comments`         | Comments on public decks                                      |
+| `forks`            | Fork relationships between decks                              |
+| `tags`             | Tag definitions                                               |
+| `card_deck_tags`   | Join table linking tags to decks                              |
+| Supabase Storage   | `card-images` bucket for uploaded card images                 |
+| `notification_log` | Email send history                                            |
 
 ---
 
@@ -266,7 +289,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 ## 9. Out of Scope (MVP)
 
 - Leaderboards (dropped in favor of badges/levels only)
-- Manual content moderation (replaced by AI moderation)
+- AI content moderation (replaced by Obscenity + NSFWJS + community reporting at launch)
 - AI accuracy moderation (community ratings handle quality)
 - Mobile app (web-first, mobile-responsive)
 - Payments or premium tier (introduced post-launch with AI generation)
@@ -291,9 +314,18 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **MVP Target: January 3, 2027**
 
+### Post-MVP Sprints
+
+| Cycle | Focus              | Notes                                                              |
+| ----- | ------------------ | ------------------------------------------------------------------ |
+| 10    | Admin Dashboard    | Key metrics, community health, moderation queue                    |
+| 11    | Anki Import        | CSV and .apkg import to lower switching cost from Anki             |
+| 12    | AI Moderation      | Claude-powered content safety screening (once revenue supports it) |
+| 13    | AI Card Generation | Credit-based, paid feature                                         |
+
 ---
 
-## 10. Pages & Content
+## 11. Pages & Content
 
 ### Public (Unauthenticated)
 
@@ -356,7 +388,8 @@ The one paid feature is **AI card generation** — a new capability introduced a
 - Deck title and description fields
 - Public/private toggle
 - Tag input with debounced autocomplete
-- Card list (front/back per card)
+- Card list (front/back per card — text, image, or both)
+- Image upload per card side (drag and drop or file picker)
 - Add card button
 - Drag to reorder cards
 - Generate cards with AI button (Sprint 9)
@@ -434,7 +467,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 ---
 
-## 11. Content Strategy & Logged-Out Experience
+## 12. Content Strategy & Logged-Out Experience
 
 ### Content Tiers
 
@@ -490,7 +523,176 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 ---
 
-## 12. Design Principles
+## 13. Admin Dashboard (Post-MVP)
+
+### Approach
+
+Start with **Supabase Studio saved queries** for the first few months — zero build effort, surfaces raw data immediately. Migrate to **Metabase** (open source, self-hosted, connects directly to Supabase Postgres) once data is flowing and a permanent dashboard is warranted.
+
+A protected `/admin` route in MnemIQ itself is a future option if metrics ever need to be shared with investors or collaborators.
+
+### Key Metrics to Track
+
+**Growth**
+
+- MAU and DAU (monthly and daily active users)
+- New signups per week/month
+- MAU month-over-month growth rate
+
+**Retention**
+
+- 30-day retention rate
+- Average streak length
+- Streak completion rate (users who study on days they have cards due)
+
+**Community Health**
+
+- Total public decks published
+- New decks published per month
+- Total forks, ratings, and comments
+- Monthly active community contributors (users who publish, fork, or rate)
+
+**Core Loop**
+
+- Total study sessions completed
+- Average cards reviewed per session
+- Cards due vs. cards reviewed ratio (are users keeping up?)
+
+**Moderation**
+
+- Decks flagged via community reporting
+- Decks rejected by Obscenity text filter
+- Images rejected by NSFWJS
+- Pending moderation queue size
+
+**Monetization (post AI launch)**
+
+- AI generation credits purchased
+- Revenue per month
+- Credit bundle breakdown (Starter / Standard / Plus)
+
+### Recommended Tooling Timeline
+
+| Phase            | Tool                          | Reason                                    |
+| ---------------- | ----------------------------- | ----------------------------------------- |
+| Launch → Month 3 | Supabase Studio saved queries | Zero effort, immediate access             |
+| Month 3+         | Metabase (self-hosted)        | Permanent dashboard, graphs, no coding    |
+| Future           | `/admin` route in MnemIQ      | Shareable with investors or collaborators |
+
+---
+
+## 14. Acquisition Considerations
+
+### What Buyers Look For
+
+MnemIQ's most defensible asset is not the app itself — it's the community content layer. A buyer can build a flashcard app; they cannot easily replicate a thriving library of community-created, rated, and forked decks. This is the moat worth building toward.
+
+### Target Buyer Profiles
+
+| Buyer Type        | Examples                              | What They Care About          |
+| ----------------- | ------------------------------------- | ----------------------------- |
+| Edtech strategics | Chegg, Course Hero, Quizlet, Duolingo | DAU, retention, content moat  |
+| PE / roll-ups     | Edtech aggregators                    | Revenue, margins, growth rate |
+| Acqui-hire        | Large tech companies                  | Team, tech, early traction    |
+
+### Metrics That Matter
+
+**The number to watch isn't just DAU — it's community health:**
+
+| Metric                                | Target for Acquisition Interest      |
+| ------------------------------------- | ------------------------------------ |
+| DAU                                   | 5,000–20,000                         |
+| 30-day retention                      | >30%                                 |
+| Monthly active community contributors | 1,000+ (publishing, forking, rating) |
+| Community deck library size           | Large, diverse, high-quality         |
+
+10,000 MAU with 1,000 active community contributors is a more compelling acquisition story than 50,000 MAU of passive studiers.
+
+### What MnemIQ Is Building Toward
+
+- A content moat via community decks, forks, and ratings — hard to replicate
+- Strong retention signals via streaks, gamification, and spaced repetition
+- Clean, modern stack that an acquiring engineering team won't cringe at
+- Transparent, trust-first monetization that doesn't alienate the user base
+
+### Timeline Expectation
+
+Assuming a January 2027 launch and steady organic growth, unsolicited acquisition interest is realistically 18–36 months out — provided the product is genuinely good and some marketing effort is made.
+
+### Saleability Risks to Monitor
+
+- **Anki brand callouts** in marketing copy — low risk (Anki is open source and community-run) but worth softening if a large acquirer's legal team flags it
+- **Anthropic API dependency** — acquirers will ask about vendor lock-in. Worth maintaining a model-agnostic AI architecture that could swap providers if needed
+- **Student data privacy** — COPPA (US) and GDPR (EU) compliance will come up in due diligence. Age gating and a clear data handling policy should be in place before scaling
+- **DaisyUI licensing** — MIT licensed, no issues
+
+---
+
+## 15. Import & Export (Post-MVP)
+
+### Anki Import
+
+Lowering the switching cost from Anki is a meaningful acquisition lever. Students with years of Anki decks won't abandon them unless migration is painless.
+
+**Phase 1 — CSV import (Sprint 11)**
+
+- Simple two-column CSV (front, back)
+- Covers most casual Anki users who export via plain text
+- Low implementation complexity
+
+**Phase 2 — .apkg import (future)**
+
+- Anki's native format is a SQLite database under the hood
+- More complex to parse but covers power users with media-rich decks
+- Worth tackling once CSV import is validated and demand is confirmed
+
+**Suggested copy:**
+
+> _Bring your Anki decks with you. We don't mind._
+
+### MnemIQ Export
+
+Users should always be able to get their data out — this builds trust and is a strong signal to potential acquirers that MnemIQ respects its users.
+
+- Export any deck as CSV (front, back, tags)
+- Export study history as CSV
+- Full account data export (GDPR compliance)
+
+---
+
+## 16. SEO Strategy
+
+### Why SEO Matters for MnemIQ
+
+Public deck detail pages are indexable by Google. A student searching "US state capitals flashcards" or "anatomy flashcards" could land directly on a MnemIQ deck — free acquisition with no ad spend. This is the most valuable organic growth channel available at launch.
+
+### Sprint 9 SEO Checklist
+
+- **Meta tags** — unique title and description tags on every page, especially public deck detail pages
+- **Open Graph tags** — rich previews when MnemIQ links are shared on social media
+- **Sitemap** — auto-generated sitemap submitted to Google Search Console
+- **Google Search Console** — configured at launch to monitor search performance and indexing
+- **Robots.txt** — configured to allow indexing of public pages, block admin and auth routes
+- **Structured data** — JSON-LD schema markup on deck detail pages (helps Google understand content)
+- **Canonical URLs** — prevent duplicate content issues (e.g. forked decks)
+- **Page speed** — Next.js App Router + Vercel gives strong Core Web Vitals out of the box; audit before launch
+
+### Competitive Search Ads (Future)
+
+Competitors (Quizlet, Anki) may bid on "MnemIQ" as a keyword in Google Search Ads — a common practice. Mitigation:
+
+- Strong organic SEO ensures MnemIQ's own site ranks first for brand searches
+- Bidding on competitor keywords ("Anki alternative", "Quizlet alternative", "flashcard app") is a future growth lever once revenue supports ad spend
+
+### Content SEO (Ongoing)
+
+- Each public community deck is a potential organic landing page
+- MnemIQ free decks (state capitals, world flags, etc.) should have rich descriptions optimized for search
+- Tags map naturally to topic-based search queries
+
+---
+
+## 17. Design Principles
 
 - **Welcoming and modern** — intelligence signaled through design, not complexity
 - **Anti-Anki** — no clutter, no utilitarian aesthetic, no unfinished feeling

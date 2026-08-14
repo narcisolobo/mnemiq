@@ -1,11 +1,4 @@
-import { Anton, Archivo_Black, Epilogue, Sora } from 'next/font/google';
-
-const anton = Anton({
-  subsets: ['latin'],
-  weight: '400',
-  display: 'swap',
-  variable: '--font-anton',
-});
+import { Archivo_Black, Sora } from 'next/font/google';
 
 const archivoBlack = Archivo_Black({
   subsets: ['latin'],
@@ -14,16 +7,10 @@ const archivoBlack = Archivo_Black({
   variable: '--font-archivo-black',
 });
 
-const epilogue = Epilogue({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-epilogue',
-});
-
 const sora = Sora({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-sora',
 });
 
-export { anton, archivoBlack, epilogue, sora };
+export { archivoBlack, sora };

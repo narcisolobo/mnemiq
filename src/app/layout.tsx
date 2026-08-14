@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { anton, archivoBlack, epilogue, sora } from '@/fonts';
+import { archivoBlack, sora } from '@/fonts';
 import '@/styles/globals.css';
+import Header from '@/components/layout/Header';
 
 const metadata: Metadata = {
   title: 'Create Next App',
@@ -11,8 +12,11 @@ function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${archivoBlack.variable} ${epilogue.variable} ${sora.variable} h-full antialiased`}>
-      <body>{children}</body>
+      className={`${archivoBlack.variable} ${sora.variable} h-full antialiased`}>
+      <body>
+        <Header />
+        {children}
+      </body>
     </html>
   );
 }
