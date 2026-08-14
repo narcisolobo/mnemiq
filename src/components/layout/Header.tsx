@@ -1,4 +1,4 @@
-import Logo from "../brand/Logo";
+import MnemIQLogo from "../brand/MnemIQLogo";
 import ThemeSwitcher from "../shared/ThemeSwitcher";
 
 function Header() {
@@ -7,7 +7,7 @@ function Header() {
       <div className="max-w-8xl mx-auto px-4">
         <header className="navbar">
           <div className="flex-1">
-            <Logo />
+            <MnemIQLogo />
           </div>
           <div className="navbar-end">
             <ThemeSwitcher />

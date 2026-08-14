@@ -1,6 +1,6 @@
 function Footer() {
   return (
-    <footer className="footer sm:footer-horizontal bg-base-200 border-t border-base-300 p-10 mt-16 flex-none">
+    <footer className="footer sm:footer-horizontal bg-base-200 border-base-300 flex-none border-t p-10">
       <nav>
         <h6 className="footer-title">Product</h6>
         <a className="link link-hover">Components</a>

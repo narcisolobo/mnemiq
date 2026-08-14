@@ -190,6 +190,8 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 | 🧬 Scholar      | Review 1,000 cards total          |
 | 💡 Curious      | Study 10 different card decks     |
 
+<a href="https://www.flaticon.com/free-icons/fire" title="fire icons">Fire icons created by Magnific - Flaticon</a>
+
 ### 6.9 Streaks
 
 - Daily streak tracked and incremented on study session completion

@@ -1,6 +1,7 @@
 import ScreenShotCard from "@/components/shared/ScreenShotCard";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HeroHeadings from "./HeroHeadings";
-import { ArrowRight } from "lucide-react";
 
 function LandingPageHero() {
   return (
@@ -14,7 +15,7 @@ function LandingPageHero() {
         <div className="flex justify-center">
           <button className="btn btn-xl btn-primary font-bold uppercase shadow-lg">
             Sign up for free
-            <ArrowRight size={32} />
+            <FontAwesomeIcon icon={faArrowRight} className="w-6" />
           </button>
         </div>
         <ScreenShotCard placeholderText="app screenshot / product shot"></ScreenShotCard>

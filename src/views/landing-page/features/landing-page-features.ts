@@ -7,7 +7,7 @@ type LandingPageFeature = {
 const features: LandingPageFeature[] = [
   {
     itemNumber: "01",
-    title: "The algorithm that actually works",
+    title: "Backed by science",
     description:
       "SM-2 spaced repetition. It's the same method memory champions use, and yes, it's as powerful as it sounds. We just made it not look like it was built in 2004.",
   },

@@ -8,16 +8,17 @@ function LandingPageFeatures() {
         <h2 className="fluid-2xl font-display text-center uppercase">
           Why Switch?
         </h2>
-        <div className="flex flex-col gap-6 md:flex-row">
+        <ul className="flex flex-col items-stretch gap-6 md:flex-row">
           {features.map(({ itemNumber, title, description }) => (
-            <FeatureCard
-              key={itemNumber}
-              itemNumber={itemNumber}
-              title={title}
-              description={description}
-            />
+            <li key={itemNumber} className="flex-1">
+              <FeatureCard
+                itemNumber={itemNumber}
+                title={title}
+                description={description}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

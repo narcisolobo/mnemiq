@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-function Logo() {
+function MnemIQLogo() {
   return (
     <Link
       href="/"
@@ -20,4 +20,4 @@ function Logo() {
   );
 }
 
-export default Logo;
+export default MnemIQLogo;

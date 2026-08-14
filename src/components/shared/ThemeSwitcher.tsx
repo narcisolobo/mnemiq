@@ -1,4 +1,5 @@
-import { Moon, Sun } from "lucide-react";
+import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ThemeSwitcher() {
   return (
@@ -8,9 +9,8 @@ function ThemeSwitcher() {
         value="mnemiq-light"
         className="theme-controller"
       />
-
-      <Sun className="swap-off h-6 w-6 fill-current" />
-      <Moon className="swap-on h-6 w-6 fill-current" />
+      <FontAwesomeIcon icon={faSun} className="swap-off h-6 w-6 fill-current" />
+      <FontAwesomeIcon icon={faMoon} className="swap-on h-6 w-6 fill-current" />
     </label>
   );
 }
