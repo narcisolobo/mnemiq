@@ -100,20 +100,50 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 ### 6.3 Spaced Repetition (SM-2)
 
 - Study sessions powered by the SM-2 algorithm
-- Rating options per card: Again / Hard / Good / Easy
+- Rating options per card: Retry / Hard / Good / Easy
 - SM-2 calculates next review interval after each rating
 - Card review history stored in `card_reviews` table
 - "Cards due today" count surfaced on dashboard
 - "Quick study" mode — study all due cards across all decks
 
+SM-2 is the right choice for launch precisely because it needs no per-user review history to behave reasonably — the alternative, FSRS, only outperforms SM-2 once a user has accumulated hundreds of reviews, making it a poor fit for a new app with no legacy data. MnemIQ's implementation deliberately improves on two well-documented SM-2 pain points without adopting FSRS's full ML model.
+
+#### MVP Improvements over Standard SM-2
+
+- **Ease hell mitigation:** Standard SM-2 ties a card's difficulty entirely to its ease factor, which only ratchets downward on Retry/Hard and floors at 130% — a card that fails repeatedly gets reviewed unnecessarily often as its interval growth stalls. MnemIQ tracks a difficulty signal separate from the ease factor so a single lapse doesn't compound the same way as a genuinely hard card's history.
+- **Proportional lapse decay:** Standard SM-2 resets a card's interval to the initial learning step on any failure, regardless of review history — a card successfully reviewed 15 times and then forgotten once is treated identically to a brand-new card. MnemIQ decays the interval proportionally to prior successful reviews on lapse instead of hard-resetting it.
+
+#### Future Considerations
+
+- **Overdue scheduling calibration:** SM-2's fixed interval multiplier is applied the same way regardless of how overdue a card is, which tends to overshoot on cards reviewed well past their due date. A damping factor proportional to overdueness is worth exploring post-MVP.
+- **Response-latency signal:** SM-2 only captures a binary/graded rating with no signal for how long a user took to answer. Capturing response time client-side and using it as a soft input to ease/interval calculation is a candidate for a later iteration.
+
 ### 6.4 Study Sessions
 
 - Session start screen with due card count
 - Flashcard flip animation (front → back)
-- Keyboard shortcuts (spacebar to flip, 1–4 to rate)
+- Fully keyboard-navigable review session (see Keyboard Shortcuts below)
 - Session progress indicator
 - Session summary screen on completion
 - Session pause and resume
+
+#### Keyboard Shortcuts
+
+| Key                | Action                                                  |
+| ------------------ | ------------------------------------------------------- |
+| `Space`            | Flip card (front → back)                                |
+| `1`                | Retry                                                   |
+| `2`                | Hard                                                    |
+| `3`                | Good                                                    |
+| `4`                | Easy                                                    |
+| `Ctrl+Z` / `Cmd+Z` | Undo last rating                                        |
+| `Esc`              | Pause session                                           |
+| `Enter`            | Resume from pause screen / advance past session summary |
+
+- Rating keys (`1`–`4`) are ignored until the card has been flipped — matches Anki's behavior and prevents mis-rating an unseen card
+- Undo reverts the last `card_reviews` row and recalculates the card's interval/ease accordingly
+- "End session" is a click-only action reachable from the pause screen, not bound to a key, so an accidental keystroke can't terminate a session
+- `R` (replay audio) is reserved for post-launch, contingent on audio card support
 
 ### 6.5 Community Features
 
@@ -364,7 +394,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 - Flashcard (front, flip to reveal back)
 - Session progress indicator (e.g. 12/30)
-- Rating buttons (Again / Hard / Good / Easy)
+- Rating buttons (Retry / Hard / Good / Easy)
 - Keyboard shortcut hints
 - Pause button
 
