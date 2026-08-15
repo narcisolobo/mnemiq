@@ -1,7 +1,7 @@
 function LandingPageCta() {
   return (
     <section className="text-neutral-content bg-neutral py-12 md:py-16 lg:py-20">
-      <div className="max-w-8xl mx-auto space-y-6 px-6">
+      <div className="max-w-8xl mx-auto space-y-8 px-6 md:space-y-12">
         <h2 className="fluid-2xl font-display text-primary text-center leading-none uppercase">
           Anki had a good run.
         </h2>
