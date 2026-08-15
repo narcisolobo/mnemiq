@@ -1,6 +1,3 @@
-import { faMeteor } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 interface LevelBadgeProps {
   level: number;
 }
@@ -19,18 +16,15 @@ interface StreakProps {
 
 function Streak({ streak }: StreakProps) {
   return (
-    <div className="text-base-content text-lg font-semibold">
-      <p className="flex items-center gap-2">
-        <FontAwesomeIcon icon={faMeteor} className="w-6" />
-        {streak}-day streak
-      </p>
+    <div className="text-base-content">
+      <p className="text-lg font-semibold">🔥 {streak}-day streak</p>
     </div>
   );
 }
 
 function LevelUp() {
   return (
-    <div className="card card-lg bg-base-100 mx-auto max-w-3xl border-4">
+    <div className="card card-lg bg-base-100 border-neutral mx-auto max-w-3xl border-4 shadow-lg">
       <div className="card-body">
         <div className="flex items-center justify-between">
           <LevelBadge level={12} />

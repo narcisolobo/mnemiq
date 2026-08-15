@@ -22,7 +22,7 @@ Sign up for free
 
 ## Feature Highlights
 
-**The algorithm that actually works**
+**Backed by science**
 SM-2 spaced repetition. It's the same method memory champions use, and yes, it's as powerful as it sounds. We just made it not look like it was built in 2004.
 
 **Steal like an academic**

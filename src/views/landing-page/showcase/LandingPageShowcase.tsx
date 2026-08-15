@@ -1,3 +1,4 @@
+import BadgeGrid from "./BadgeGrid";
 import LevelUp from "./LevelUp";
 
 function LandingPageShowcase() {
@@ -12,6 +13,7 @@ function LandingPageShowcase() {
           whole thing.
         </p>
         <LevelUp />
+        <BadgeGrid />
       </div>
     </section>
   );
