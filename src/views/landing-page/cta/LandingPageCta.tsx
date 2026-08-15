@@ -6,7 +6,7 @@ function LandingPageCta() {
           Anki had a good run.
         </h2>
         <div className="flex justify-center">
-          <button className="btn btn-xl btn-primary font-bold uppercase shadow-lg">
+          <button className="btn btn-lg md:btn-xl btn-primary font-bold uppercase shadow-lg">
             Sign up for free
           </button>
         </div>
