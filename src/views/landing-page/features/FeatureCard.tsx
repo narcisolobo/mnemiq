@@ -11,7 +11,7 @@ function FeatureCard({ itemNumber, title, description }: LandingPageFeature) {
     <article className="card card-lg bg-base-200 border-neutral h-full border-4">
       <div className="card-body text-base-content gap-6">
         <div
-          className={`font-display aspect-square w-fit border-4 p-3 text-2xl font-bold ${itemNumberColors[itemNumber]}`}
+          className={`font-display border-neutral aspect-square w-fit border-4 p-3 text-2xl font-bold ${itemNumberColors[itemNumber]}`}
         >
           {itemNumber}
         </div>
