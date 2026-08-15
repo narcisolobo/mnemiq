@@ -20,7 +20,16 @@ Sign up for free
 
 ---
 
+## App Screenshot Section
+
+_(Leave headline TBD until real app screenshots are available. Strong default: no headline — let the product speak. Possible caption options: "It looks like this." / "Study mode." / "Your dashboard.")_
+
+---
+
 ## Feature Highlights
+
+**Section headline**
+Glad you asked.
 
 **Backed by science**
 SM-2 spaced repetition. It's the same method memory champions use, and yes, it's as powerful as it sounds. We just made it not look like it was built in 2004.
