@@ -5,7 +5,7 @@ import HeroHeadings from "./HeroHeadings";
 
 function LandingPageHero() {
   return (
-    <section className="text-accent-content bg-accent py-12 md:py-16 lg:py-20">
+    <section className="text-accent-content bg-accent border-neutral border-b-4 py-12 md:py-16 lg:py-20">
       <div className="max-w-8xl mx-auto space-y-12 px-6">
         <HeroHeadings />
         <p className="fluid-md mx-auto max-w-[40ch] text-center">
