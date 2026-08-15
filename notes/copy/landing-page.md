@@ -79,7 +79,7 @@ Someone already made the flashcards. You're welcome.
 Why start from scratch? Browse community decks, remix your favorites, and add your own twist.
 
 **Grid**
-9 deck cards displayed. Each card shows:
+9 card decks displayed. Each card shows:
 
 - Deck title
 - Author (e.g. @username)
