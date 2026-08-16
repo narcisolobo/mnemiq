@@ -75,7 +75,7 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 
 - Google SSO via Supabase Auth
 - Protected routes for all authenticated content
-- Auth state managed via Zustand
+- Auth state managed via React Context
 
 ### 6.2 Card Decks & Cards
 
@@ -252,29 +252,13 @@ SM-2 is the right choice for launch precisely because it needs no per-user revie
 ### 6.12 Personalization
 
 - DaisyUI theme picker — students choose their preferred theme
-- Theme preference persisted to Supabase and managed via Zustand
+- Theme preference persisted to `localStorage` and managed via Zustand (no cross-device sync)
 
 ---
 
 ## 7. Database Schema (Core Tables)
 
-| Table                           | Purpose                                                       |
-| ------------------------------- | ------------------------------------------------------------- |
-| `users`                         | Auth, profile, XP, level, streak                              |
-| `card_decks`                    | Deck metadata, public/private, AI and community ratings       |
-| `cards`                         | Individual flashcards (front/back text + optional image URLs) |
-| `card_reviews`                  | SM-2 review history per card per user                         |
-| `study_sessions`                | Completed study session records                               |
-| `badges`                        | Badge definitions                                             |
-| `user_badges`                   | Badges earned by users                                        |
-| `xp_events`                     | Audit trail of XP earned                                      |
-| `deck_ratings`                  | Community star ratings on public decks                        |
-| `comments`                      | Comments on public decks                                      |
-| `remixes` (still `forks` in DB) | Remix relationships between decks                             |
-| `tags`                          | Tag definitions                                               |
-| `card_deck_tags`                | Join table linking tags to decks                              |
-| Supabase Storage                | `card-images` bucket for uploaded card images                 |
-| `notification_log`              | Email send history                                            |
+See [`core-tables.md`](./core-tables.md) for the full schema.
 
 ---
 
