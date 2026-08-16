@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
 import { archivoBlack, sora } from "@/fonts";
 import "@/styles/globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+
+config.autoAddCss = false;
 
 const metadata: Metadata = {
   title: "Create Next App",
@@ -18,7 +22,7 @@ function RootLayout({ children }: LayoutProps<"/">) {
       <body className="selection:bg-primary">
         <div className="flex min-h-dvh flex-col">
           <Header />
-          <main className="flex flex-1 items-center justify-center">
+          <main className="flex flex-1 flex-col justify-center">
             {children}
           </main>
           <Footer />
