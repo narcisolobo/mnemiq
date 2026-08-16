@@ -56,7 +56,7 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 | ---------------- | ------------------------------------------------------------- |
 | Frontend         | Next.js (App Router)                                          |
 | Database         | Supabase (Postgres)                                           |
-| Auth             | Supabase Auth + Google SSO                                    |
+| Auth             | Supabase Auth + Google SSO + email/password                   |
 | Styling          | Tailwind + DaisyUI                                            |
 | State Management | Zustand                                                       |
 | AI               | Anthropic API (Claude)                                        |
@@ -74,6 +74,9 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 ### 6.1 Authentication
 
 - Google SSO via Supabase Auth
+- Email/password sign-up and sign-in via Supabase Auth
+  - Passwords require 8+ characters, including uppercase, lowercase, a number, and a symbol
+  - Email confirmation required before first sign-in; confirmation email sent via Resend
 - Protected routes for all authenticated content
 - Auth state managed via React Context
 
@@ -360,6 +363,15 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 - Route: `/auth/sign-in` _(exists)_
 - Google SSO button
+- Email/password sign-in form
+- App branding
+- Brief value prop
+
+**Sign Up Page**
+
+- Route: `/auth/sign-up` _(exists)_
+- Google SSO button
+- Email/password sign-up form, with inline validation
 - App branding
 - Brief value prop
 
