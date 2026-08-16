@@ -1,12 +1,8 @@
-import Link from "next/link";
+import { Fragment } from "react";
 
 function MnemIQLogo() {
   return (
-    <Link
-      href="/"
-      aria-label="Neemik logo"
-      className="font-display inline-flex items-center gap-1 text-xl"
-    >
+    <Fragment>
       <span aria-hidden="true" className="inline-block">
         mnem
       </span>
@@ -16,7 +12,7 @@ function MnemIQLogo() {
       >
         IQ
       </span>
-    </Link>
+    </Fragment>
   );
 }
 

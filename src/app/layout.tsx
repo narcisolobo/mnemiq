@@ -5,6 +5,7 @@ import { archivoBlack, sora } from "@/fonts";
 import "@/styles/globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import AuthProvider from "@/context/AuthProvider";
 
 config.autoAddCss = false;
 
@@ -19,15 +20,17 @@ function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${archivoBlack.variable} ${sora.variable} h-full antialiased`}
     >
-      <body className="selection:bg-primary">
-        <div className="flex min-h-dvh flex-col">
-          <Header />
-          <main className="flex flex-1 flex-col justify-center">
-            {children}
-          </main>
-          <Footer />
-        </div>
-      </body>
+      <AuthProvider>
+        <body className="selection:bg-primary">
+          <div className="flex min-h-dvh flex-col">
+            <Header />
+            <main className="flex flex-1 flex-col justify-center">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </body>
+      </AuthProvider>
     </html>
   );
 }
