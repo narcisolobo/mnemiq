@@ -18,7 +18,9 @@ function RootLayout({ children }: LayoutProps<"/">) {
       <body className="selection:bg-primary">
         <div className="flex min-h-dvh flex-col">
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex flex-1 items-center justify-center">
+            {children}
+          </main>
           <Footer />
         </div>
       </body>
