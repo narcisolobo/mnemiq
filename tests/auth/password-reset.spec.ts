@@ -4,9 +4,7 @@ import { createConfirmedUser, generateTokenHash } from "../helpers/supabase-admi
 test("reset request, recovery link, and new password reach /profile", async ({
   page,
 }) => {
-  // See sign-up.spec.ts for why this needs a resend.dev address rather
-  // than a made-up one — Resend rejects unverified-domain recipients.
-  const email = `delivered+e2e-reset-${Date.now()}@resend.dev`;
+  const email = `e2e-reset-${Date.now()}@example.com`;
   await createConfirmedUser(email, "Abcdef1!");
 
   await page.goto("/auth/reset-password");

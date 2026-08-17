@@ -233,9 +233,14 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
+# Use a production-ready SMTP server. Disabled locally in favor of the
+# built-in Mailpit catcher (see notes/pre-deployment.md) — real email
+# delivery isn't testable against a live provider from local dev/CI:
+# Resend rejects unverified-domain recipients, its send-only API key
+# can't read back sent content, and its rate limit isn't meant for
+# repeated automated test runs.
 [auth.email.smtp]
-enabled = true
+enabled = false
 host = "smtp.resend.com"
 port = 465
 user = "resend"

@@ -47,4 +47,4 @@ async function generateTokenHash(
   return data.properties.hashed_token;
 }
 
-export { createConfirmedUser, generateTokenHash };
+export { createAdminClient, createConfirmedUser, generateTokenHash };
