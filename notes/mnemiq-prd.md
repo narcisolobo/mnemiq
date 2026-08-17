@@ -56,7 +56,7 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 | ---------------- | ------------------------------------------------------------- |
 | Frontend         | Next.js (App Router)                                          |
 | Database         | Supabase (Postgres)                                           |
-| Auth             | Supabase Auth + Google SSO                                    |
+| Auth             | Supabase Auth + Google SSO + email/password                   |
 | Styling          | Tailwind + DaisyUI                                            |
 | State Management | Zustand                                                       |
 | AI               | Anthropic API (Claude)                                        |
@@ -74,6 +74,9 @@ MnemIQ fills the gap: **Anki's learning science + Quizlet's approachability + a 
 ### 6.1 Authentication
 
 - Google SSO via Supabase Auth
+- Email/password sign-up and sign-in via Supabase Auth
+  - Passwords require 8+ characters, including uppercase, lowercase, a number, and a symbol
+  - Email confirmation required before first sign-in; confirmation email sent via Resend
 - Protected routes for all authenticated content
 - Auth state managed via React Context
 
@@ -348,6 +351,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Landing Page**
 
+- Route: `/`
 - Hero section (value proposition, CTA to sign up)
 - Feature highlights (spaced repetition, community, gamification)
 - Sample/preview of community card decks
@@ -357,7 +361,17 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Login Page**
 
+- Route: `/auth/sign-in` _(exists)_
 - Google SSO button
+- Email/password sign-in form
+- App branding
+- Brief value prop
+
+**Sign Up Page**
+
+- Route: `/auth/sign-up` _(exists)_
+- Google SSO button
+- Email/password sign-up form, with inline validation
 - App branding
 - Brief value prop
 
@@ -367,6 +381,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Dashboard**
 
+- Route: `/dashboard`
 - Streak indicator (🔥 current streak)
 - XP progress bar toward next level
 - Cards due today count + quick study CTA
@@ -376,6 +391,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Study Session**
 
+- Route: `/study/[deckId]`
 - Flashcard (front, flip to reveal back)
 - Session progress indicator (e.g. 12/30)
 - Rating buttons (Retry / Hard / Good / Easy)
@@ -384,6 +400,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Session Summary**
 
+- Route: `/study/[deckId]/summary`
 - Cards reviewed count
 - Accuracy breakdown
 - XP earned
@@ -396,12 +413,14 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **My Card Decks (list)**
 
+- Route: `/decks`
 - Grid/list of user's card decks
 - Create new deck button
 - Per-deck: title, card count, due cards, public/private status
 
 **Card Deck Editor**
 
+- Route: `/decks/new` (create), `/decks/[deckId]/edit` (edit)
 - Deck title and description fields
 - Public/private toggle
 - Tag input with debounced autocomplete
@@ -414,6 +433,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Card Deck Detail (own deck)**
 
+- Route: `/decks/[deckId]`
 - Deck metadata (title, description, tags, card count)
 - Study now button
 - Edit button
@@ -426,6 +446,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Browse Page**
 
+- Route: `/community`
 - Search bar
 - Filter by tag
 - Sort controls (newest, highest rated, most studied)
@@ -434,6 +455,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Deck Detail Page (public)**
 
+- Route: `/community/[deckId]`
 - Deck metadata (title, description, author, tags, card count)
 - AI safety badge
 - Community star rating + rate this deck
@@ -450,6 +472,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Profile Page**
 
+- Route: `/profile` (own), `/u/[username]` (public, for the "Author profile link" from community deck detail)
 - Avatar + display name
 - Member since date
 - Current level + level badge
@@ -461,6 +484,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Settings Page**
 
+- Route: `/settings`
 - Theme picker (DaisyUI themes)
 - Notification preferences (per-type toggles)
 - Display name edit
@@ -472,6 +496,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **Onboarding Flow** _(first-time users only)_
 
+- Route: `/onboarding` (step tracked via query param or client state, e.g. `/onboarding?step=2`)
 - Step 1: Welcome screen
 - Step 2: Create your first card deck (or browse community)
 - Step 3: Study your first session
@@ -479,6 +504,7 @@ The one paid feature is **AI card generation** — a new capability introduced a
 
 **404 / Error Page**
 
+- Route: none — handled via App Router `not-found.tsx` / `error.tsx` conventions, not a URL
 - Friendly message
 - CTA back to dashboard
 

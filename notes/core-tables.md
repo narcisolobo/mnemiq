@@ -1,6 +1,6 @@
 # Core Tables
 
-| users           | data type   | description |
+| profiles        | data type   | description |
 |-----------------|-------------|-------------|
 | id              | uuid        | Primary key; matches the Supabase Auth user id |
 | username        | text        | Unique display name; shown on profile and next to level badge in comments |
@@ -16,7 +16,7 @@
 | card_decks       | data type   | description |
 |------------------|-------------|-------------|
 | id               | uuid        | Primary key |
-| owner_id         | uuid        | References users.id; the deck's author |
+| owner_id         | uuid        | References profiles.id; the deck's author |
 | title            | text        | Deck title |
 | description      | text        | Deck description |
 | is_public        | boolean     | Whether the deck is publicly visible and studyable by other users |
@@ -43,7 +43,7 @@
 | study_sessions | data type   | description |
 |----------------|-------------|-------------|
 | id             | uuid        | Primary key |
-| user_id        | uuid        | References users.id |
+| user_id        | uuid        | References profiles.id |
 | deck_id        | uuid        | References card_decks.id being studied |
 | started_at     | timestamptz | When the session began |
 | completed_at   | timestamptz | When the session was completed (null while in progress or paused) |
@@ -53,7 +53,7 @@
 |----------------|-------------|-------------|
 | id             | uuid        | Primary key |
 | card_id        | uuid        | References cards.id |
-| user_id        | uuid        | References users.id |
+| user_id        | uuid        | References profiles.id |
 | session_id     | uuid        | References study_sessions.id; links this review to the session it was reviewed in |
 | reviewed_at    | timestamptz | When the review occurred |
 | rating         | text        | Rating given: retry, hard, good, or easy |
@@ -73,7 +73,7 @@
 | user_badges | data type   | description |
 |-------------|-------------|-------------|
 | id          | uuid        | Primary key |
-| user_id     | uuid        | References users.id |
+| user_id     | uuid        | References profiles.id |
 | badge_id    | uuid        | References badges.id |
 | earned_at   | timestamptz | When the badge was awarded |
 
@@ -81,7 +81,7 @@
 |--------------|-------------|-------------|
 | id           | uuid        | Primary key |
 | deck_id      | uuid        | References card_decks.id; unique constraint on (deck_id, user_id) — rating is upserted, not re-inserted, on re-rate |
-| user_id      | uuid        | References users.id; unique constraint on (deck_id, user_id) |
+| user_id      | uuid        | References profiles.id; unique constraint on (deck_id, user_id) |
 | rating       | integer     | Star rating, 1-5 |
 | created_at   | timestamptz | When the rating was first given |
 | updated_at   | timestamptz | When the rating was last changed |
@@ -91,13 +91,13 @@
 | id               | uuid        | Primary key |
 | original_deck_id | uuid        | References card_decks.id being remixed |
 | forked_deck_id   | uuid        | References card_decks.id created from the remix |
-| user_id          | uuid        | References users.id who performed the remix |
+| user_id          | uuid        | References profiles.id who performed the remix |
 | created_at       | timestamptz | When the remix was created |
 
 | xp_events   | data type   | description |
 |-------------|-------------|-------------|
 | id          | uuid        | Primary key |
-| user_id     | uuid        | References users.id |
+| user_id     | uuid        | References profiles.id |
 | action      | text        | XP-earning action type (e.g. study_session_completed, streak_milestone, deck_published, five_star_rating_received, deck_remixed, deck_was_remixed, first_deck_created, first_session_completed) |
 | xp_awarded  | integer     | Amount of XP granted for this event |
 | created_at  | timestamptz | When the XP was awarded |
@@ -106,7 +106,7 @@
 |-------------|-------------|-------------|
 | id          | uuid        | Primary key |
 | deck_id     | uuid        | References card_decks.id |
-| user_id     | uuid        | References users.id; the comment's author |
+| user_id     | uuid        | References profiles.id; the comment's author |
 | body        | text        | Comment text content |
 | created_at  | timestamptz | When the comment was posted |
 | updated_at  | timestamptz | When the comment was last edited (null if never edited) |
@@ -126,14 +126,14 @@
 | notification_log | data type   | description |
 |------------------|-------------|-------------|
 | id               | uuid        | Primary key |
-| user_id          | uuid        | References users.id; the recipient |
+| user_id          | uuid        | References profiles.id; the recipient |
 | type             | text        | Notification type (daily_reminder, streak_at_risk, badge_earned, deck_rated, deck_remixed, deck_flagged) |
 | sent_at          | timestamptz | When the email was sent |
 
 | notification_preferences | data type   | description |
 |---------------------------|-------------|-------------|
 | id                         | uuid        | Primary key |
-| user_id                    | uuid        | References users.id |
+| user_id                    | uuid        | References profiles.id |
 | type                       | text        | Notification type this preference applies to (daily_reminder, streak_at_risk, badge_earned, deck_rated, deck_remixed, deck_flagged) |
 | enabled                    | boolean     | Whether this notification type is enabled; row only exists for opt-outs, so absence implies enabled |
 | updated_at                 | timestamptz | When the preference was last changed |
@@ -147,7 +147,7 @@
 | id           | uuid        | Primary key |
 | deck_id      | uuid        | References card_decks.id; the reported deck, nullable — exactly one of deck_id / comment_id is set |
 | comment_id   | uuid        | References comments.id; the reported comment, nullable — exactly one of deck_id / comment_id is set |
-| reporter_id  | uuid        | References users.id; who filed the report |
+| reporter_id  | uuid        | References profiles.id; who filed the report |
 | reason       | text        | Reason given for the report |
 | status       | text        | Report status: pending, resolved, or dismissed |
 | created_at   | timestamptz | When the report was filed |
@@ -161,7 +161,7 @@ Migration notes:
 | user_strikes | data type   | description |
 |--------------|-------------|-------------|
 | id           | uuid        | Primary key |
-| user_id      | uuid        | References users.id; the user issued the strike |
+| user_id      | uuid        | References profiles.id; the user issued the strike |
 | deck_id      | uuid        | References card_decks.id; the deck that triggered the strike, nullable |
 | reason       | text        | Reason for the strike |
 | action       | text        | Action taken: warning, deck_removal, or suspension |
