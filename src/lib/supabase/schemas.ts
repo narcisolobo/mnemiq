@@ -16,4 +16,23 @@ const signInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export { signInSchema, signUpSchema };
+const forgotPasswordSchema = z.object({
+  email: z.email(),
+});
+
+const updatePasswordSchema = z
+  .object({
+    password: signUpSchema.shape.password,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export {
+  signInSchema,
+  signUpSchema,
+  forgotPasswordSchema,
+  updatePasswordSchema,
+};
