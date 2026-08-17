@@ -1,17 +1,18 @@
 import Link from "next/link";
+import { Fragment } from "react";
 
 function LoggedOutMenu() {
   return (
-    <ul className="menu menu-horizontal items-center">
+    <Fragment>
       <li>
         <Link href="/auth/sign-in">Sign In</Link>
       </li>
       <li>
-        <Link href="/auth/sign-up" className="btn btn-sm btn-primary">
+        <Link href="/auth/sign-up" className="btn btn-sm btn-primary ml-2">
           Sign Up Free
         </Link>
       </li>
-    </ul>
+    </Fragment>
   );
 }
 

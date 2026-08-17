@@ -24,7 +24,12 @@ function Header() {
             </Link>
           </div>
           <div className="flex flex-none items-center">
-            {user ? <UserMenu /> : <LoggedOutMenu />}
+            <ul className="menu menu-horizontal items-center gap-2">
+              <li>
+                <Link href="/community">Community</Link>
+              </li>
+              {user ? <UserMenu /> : <LoggedOutMenu />}
+            </ul>
             <div className="divider divider-horizontal" />
             <ThemeSwitcher />
           </div>
