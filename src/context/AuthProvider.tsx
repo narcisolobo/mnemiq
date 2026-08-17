@@ -22,6 +22,13 @@ function AuthProvider({
   const [profile, setProfile] = useState<Profile | null>(initialProfile);
   const [isLoading, setIsLoading] = useState<boolean>(!initialUser);
 
+  const [prevInitialUser, setPrevInitialUser] = useState(initialUser);
+  if (initialUser !== prevInitialUser) {
+    setPrevInitialUser(initialUser);
+    setUser(initialUser);
+    setProfile(initialProfile);
+  }
+
   useEffect(() => {
     const supabase = createClient();
 
